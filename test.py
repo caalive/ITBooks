@@ -49,14 +49,9 @@ html = """
 """
 
 
-
-
-
-
-
 soup = BeautifulSoup(html, 'lxml')
 
-rules = ('div.book-detail > dl > dd',)
+rules = ('ggg',)
 
 result = [soup.select(kk) for kk in rules]
 #
@@ -89,11 +84,44 @@ kk = 'http://www.allitebooks.com/web-development/asp-net/'
 #     print(i)
 
 
+#
+# def generate_page_link(linkseed, start, end='', suffix=''):
+#     for link in [linkseed + suffix + '{}'.format(str(i)) for i in range(start, end + 1)]:
+#         yield link
 
-def generate_page_link(linkseed, start, end='', suffix=''):
-    for link in [linkseed + suffix + '{}'.format(str(i)) for i in range(start, end + 1)]:
-        yield link
+
+# for item in generate_page_link(kk, 1, 12, 'page/'):
+#     print(item)
 
 
-for item in generate_page_link(kk, 1, 12, 'page/'):
-    print(item)
+# se = ('a', 'b', 'c')
+# tu = (1, 2, 3)
+#
+# print(dict(zip(se, tu)))
+
+# temp = dict()
+# temp.update()
+
+
+# match = [1 ,2, 3]
+# n = ('ffff',)
+# match.extend(n)
+# print(match)
+
+#
+# sss = ['dddd']
+#
+# sss[0] = sss[0]+'\nffff'
+#
+# print(sss)
+
+
+dttag = soup.new_tag("dt")
+ddag = soup.new_tag("dd")
+
+new_string = soup.new_string("downloadlink:")
+dttag.append(new_string)
+new_string = soup.new_string("hhhh")
+ddag.append(new_string)
+
+print(dttag, ddag)

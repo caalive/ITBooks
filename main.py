@@ -16,7 +16,7 @@ header = {
 
 
 class Property:
-    def __init__(self, url='', rules='re', selector='', headers=header, parser='lxml'):
+    def __init__(self, url='', rules='', selector='', headers=header, parser='lxml'):
         """
         :param url: 待爬取链接
         :param rules: 待爬取规则
@@ -47,7 +47,48 @@ class Property:
         """
         if html and rules:
             soup = BeautifulSoup(html, self.parser)
-            for match in soup.select(rules):
+            item = soup.select(rules)
+            temp = get_down_load_link(soup, down_link_rules)
+
+            """
+            soup = BeautifulSoup("<b></b>")
+            tag = soup.b
+            tag.append("Hello")
+            new_string = soup.new_string(" there")
+            tag.append(new_string)
+            tag
+            # <b>Hello there.</b>
+            """
+
+            if temp:
+                # link = 'downloadlink: ' + temp[0].get('href')
+
+                # soup = BeautifulSoup(markup='html', "lxml")
+                # new_li_tag = soup.new_tag("dt")
+                # new_atag = soup.new_tag("a", href="www.example.com")
+                # new_atag = soup.new_tag("dt")
+                #
+                # new_string = soup.new_string("downloadlink:")
+                # new_atag.append(new_string)
+
+                #添加dt标签
+                dttag = soup.new_tag("dt")
+                #添加dt同级的dd标签
+                ddag = soup.new_tag("dd")
+
+                #设置值
+                new_string = soup.new_string("downloadlink: ")
+                dttag.append(new_string)
+
+                #将书籍的下载链接添加进去
+                new_string = soup.new_string(temp[0].get('href'))
+                ddag.append(new_string)
+
+                item[0].append(dttag)
+                item[0].append(ddag)
+
+                print('item................', item)
+            for match in item:
                 # yield 返回一个生成器,用for循环迭代
                 yield match
 
@@ -120,8 +161,10 @@ briefly_info_rules = r'<img.*?src="(.*?)".*?/>.*?<h2.*?<a href="(.*?)"\s*rel=.*?
 total_page_rules = r'<h1.*?>(.*?)</h1>.*?title="Last Page &rarr;">(\d+)</a>'
 
 #书籍的详细信息提取规则
-detail_info_rules = r''
+detail_info_rules = r'div.book-detail > dl'
 
+#下载链接提取规则
+down_link_rules = r'span.download-links > a'
 
 
 """
@@ -140,8 +183,14 @@ detail_info_rules = r''
 
 """
 
+"""
+<span class="download-links">
+<a href="http://file.allitebooks.com/20170915/ASP.NET Core Recipes, 2nd Edition.pdf" target="_blank"><i class="fa fa-download" aria-hidden="true"></i> Download PDF <span class="download-size">(6.9 MB)</span></a>
+</span>
 
 
+
+"""
 
 """
 
@@ -155,7 +204,6 @@ detail_info_rules = r''
 7. 当前类目下书籍一共多少页   .*?title="Last Page &rarr;">(\d+)</a>
 """
 
-'http://www.allitebooks.com/web-development/asp-net/page/2/'
 
 #没使用,备用
 def get_single_link(linklist):
@@ -174,7 +222,7 @@ def get_one_page_briefly(property, categorylink):
 
 
 #获取分类名称和总页数, 传入Property类实例
-def getdicandpage(property):
+def get_dic_and_page(property):
     subpage = property
     catageinfo = subpage.get_info()
     for i in catageinfo:
@@ -185,6 +233,10 @@ def getdicandpage(property):
 def generate_page_link(linkseed, start, end='', suffix=''):
     for link in [linkseed + suffix + '{}'.format(str(i)) for i in range(int(start), int(end) + 1)]:
         yield link
+
+def get_down_load_link(soup, rules=''):
+    match = soup.select(rules, limit=1)
+    return match
 
 def main():
     mainentrance = 'http://www.allitebooks.com/'
@@ -206,7 +258,7 @@ def main():
         subpage = Property(category.get('href'), total_page_rules, 're')
 
         # 获取单个分类名称和总页数
-        directory, total_page_numbers = getdicandpage(subpage)
+        directory, total_page_numbers = get_dic_and_page(subpage)
         print(directory, total_page_numbers)
 
         # briefly_info_rules 单个分类下,所有书籍概要信息提取规则
@@ -219,7 +271,21 @@ def main():
 
             # 单个分类下每一页书籍概要信息循环
             for info in subpage.get_info():
-                print(info)
+                subpage.url = info[1]
+                print(subpage.url)
+                subpage.rules = detail_info_rules
+                subpage.selector = 'select'
+                info = {}
+                for i in subpage.get_info():  #书籍详细信息获取
+                    temp = i.text.split('\n') #换行符分隔字符串
+                    for items in temp:
+                        if items:            #字符串不为空
+                            print(items)
+                            key, value = items.split(':', maxsplit=1)   # 以冒号分隔(分隔一次,全部分隔会报错),生成字典
+                            info[key.strip()] = value.strip()
+
+                    print(info)
+                    return
         return
 
 if __name__ == '__main__':
