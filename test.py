@@ -116,12 +116,52 @@ kk = 'http://www.allitebooks.com/web-development/asp-net/'
 # print(sss)
 
 
-dttag = soup.new_tag("dt")
-ddag = soup.new_tag("dd")
+# dttag = soup.new_tag("dt")
+# ddag = soup.new_tag("dd")
+#
+# new_string = soup.new_string("downloadlink:")
+# dttag.append(new_string)
+# new_string = soup.new_string("hhhh")
+# ddag.append(new_string)
+#
+# print(dttag, ddag)]
+# key = 'kk'
+# value = '44'
+#
+# gg = {key:value}
+# print(gg)
 
-new_string = soup.new_string("downloadlink:")
-dttag.append(new_string)
-new_string = soup.new_string("hhhh")
-ddag.append(new_string)
 
-print(dttag, ddag)
+MONGO_URL = 'localhost'
+MONGO_DB = 'ITBooks'
+MONGO_TABLE = 'Books'
+
+# import pymongo
+#
+# client = pymongo.MongoClient(MONGO_URL)
+# db = client[MONGO_DB]
+#
+#
+# def save_to_mongo(result):
+#
+#     if db.get_collection(MONGO_TABLE).update({}, {'$pushAll': {list(result.keys())[0]: list(result.values())[0]}}, upsert=True):
+#         print('存储到MongoDB成功', result)
+#
+#         # re = db.get_collection(MONGO_TABLE).find({}, {list(result.keys())[0]: 1})
+#         # print(type(re), re)
+#
+#         return True
+#     return False
+
+
+# save_to_mongo({'aps': [{'a': 1}, {'b': 2}]})
+# save_to_mongo({'aps': [{'c': 3}]})
+# save_to_mongo({'aps': [{'d': 555}]})
+# gg = 'aps.net'
+# print(gg.replace('.', '_'))
+
+import re
+
+hh = 'Net'
+print(re.sub(r'^\.', '', hh))
+
