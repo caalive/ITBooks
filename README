@@ -1,0 +1,29 @@
+
+
+databases name : ITBooks
+collections name : Books
+
+THE ITBOOKS STRUCTURE  IN MONGODB
+
+{
+    '_id' : 'a random of number'
+    'ASP_NET eBooks' : [{},{}...{}]
+        .
+        .
+        .
+    'other eBooks' : [{}, {}...{}]
+}
+
+input the latter command:
+
+import pymongo
+db = pymongo.MongoClient('localhost')  #cretae database connect
+client = db['ITBooks']    #connection the ITBooks database
+books = db['Books']       #choice collection 'Books'
+
+
+1.  first select the key 'ASP_NET eBooks' use command : count = books.find_one() #type count is dict
+2.  then count['ASP_NET eBooks'][0]  # get the first data of 'ASP_NET eBooks'
+
+
+

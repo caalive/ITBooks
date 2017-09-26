@@ -6,14 +6,10 @@ import requests
 import time
 from bs4 import BeautifulSoup
 import re
-from threading import Thread
+from multiprocessing import Process, Pool
 import pymongo
 from config import *
 from AdditionalURL import *
-
-#创建数据库链接
-client = pymongo.MongoClient(MONGO_URL)
-db = client[MONGO_DB]
 
 header = {
 'Host':'www.allitebooks.com',
@@ -205,44 +201,73 @@ def get_down_load_link(soup, rules=''):
 def get_en_data():
     pass
 
+
 # 保存数据到mongodb
-def save_to_mongo(result):
-    if db.get_collection(MONGO_TABLE).update({}, {'$pushAll': {list(result.keys())[0].replace('.', '_'): list(result.values())[0]}}, upsert=True):
+def save_to_mongo(result, cobj):
+    if cobj.get_collection().update({}, {'$pushAll': {list(result.keys())[0].replace('.', '_'): list(result.values())[0]}}, upsert=True):
         print('存储到MongoDB成功')
         return True
     return False
 
-def main():
+
+# curcate(current categories)为当前采集到的书籍类目 format : (类目名, 当前类目下的书籍页数)
+# dbcate(database categories)为从数据库中查询到的书籍类目 format : {'类目1': '该类目对应的书籍总数'.....}
+# 比较当前类目和当前类目对应的书籍页数是否和数据库查询回来的类目相同
+# 类目存在,页数不同则设置为查询回来的页数
+# 如果类目不存在,页数为当前类目采集的页数
+# 这个函数写的有点烂,不要骂我,呵呵哒 O(∩_∩)O~
+# 一个函数返回三个状态,醉了....
+
+def compare_cate_and_set_number(curcate, dbcate):
+    if isinstance(curcate, tuple) and isinstance(dbcate, dict):
+        key = curcate[0].replace('.', '_')
+        # print(key, dbcate.keys())
+        if key in dbcate.keys():
+            if int(curcate[1]) == int(dbcate[key]) // 10 + 1:  # 每页10条,除以10算出总页数,除不尽则 + 1
+                return 'FULL COMPARE'
+            else:
+                return int(dbcate[key]) // 10 + 1
+        else:
+            return None
+
+# main(cobj) --> cobj为当前数据库表的对象
+def main(cobj):
     mainentrance = 'http://www.allitebooks.com/'
-
     mainpage = Property(mainentrance, categories_info_rules, 'select')
-
+    kv = cobj.get_cate_and_index()
     # 分类目录链接循环
     for categoryurl in mainpage.get_info():
-        print(categoryurl)
+        # print(categoryurl)
         # continue
         subpage = Property(categoryurl, total_page_rules, 're')
         # 获取单个分类名称和总页数
         # continue
         result = get_dic_and_page(subpage)
-        print(result)
-        if not result: # 是无效的页面,就跳过去
+        # print(result)
+        # 是无效的页面,就跳过去
+        if not result:
             continue
+        current_number = [1]
         directory, total_page_numbers = result
         print(directory, total_page_numbers)
-        # continue
 
-        if(directory in filterr):
+        # 返回当前collection(表中)现有书籍类目的名称,和该书籍类目所对应的条数
+        su = compare_cate_and_set_number(result, kv)
+        if 'FULL COMPARE' == su:
             continue
+        elif not su:
+            pass
+        else:
+            current_number[0] = su
 
-        if(directory != 'MongoDB eBooks'):
-            continue
+        # if(directory != 'MongoDB eBooks'):
+        #     continue
 
         # briefly_info_rules 单个分类下,所有书籍概要信息提取规则
         subpage.rules = briefly_info_rules
 
         # 单个分类下每一页,页索引 -> link
-        for link in generate_page_link(subpage.url, 1, total_page_numbers, r'page/'):
+        for link in generate_page_link(subpage.url, current_number[0], total_page_numbers, r'page/'):
             subpage.url = link
             subpage.rules = briefly_info_rules
             subpage.selector = 're'
@@ -268,12 +293,11 @@ def main():
                             datailinfo[key.strip()] = value.strip()   #每本书详细信息字典列表
                     pageinfo.append(datailinfo)
 
-            # if pageinfo:
-            #     save_to_mongo({directory: pageinfo})  # 将书籍详细信息加入数据库
-            #
-            print(pageinfo)
-                    # return
+            if pageinfo:
+                save_to_mongo({directory: pageinfo}, cobj)  # 将书籍详细信息加入数据库
 
+            # print(pageinfo)
+                    # return
 
         # return
 
@@ -282,7 +306,31 @@ class DownLoader:
     pass
 
 
+class DataBaseOP:
+    def __init__(self, host=None, database=None, collection=None):
+        self._hostname = host
+        self._database = database
+        self._collection = collection
+
+    def get_collection(self):
+        # 创建数据库链接, 返回指定的collection对象
+        client = pymongo.MongoClient(self._hostname)
+        table = client[self._database]
+        return table[self._collection]
+
+    # 返回当前collection(表中)现有书籍类目的名称,和该书籍类目所对应的条数
+    def get_cate_and_index(self):
+        table = self.get_collection()
+        item = table.find_one()
+        kv = dict()
+        for key in item.keys():
+            if key != '_id':
+                kv[key] = len(item[key])
+        return kv
 
 
 if __name__ == '__main__':
-    main()
+    collection = DataBaseOP(MONGO_URL, MONGO_DB, MONGO_TABLE)
+    main(collection)
+
+

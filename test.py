@@ -8,52 +8,52 @@
 
 """
 
-ss = 'h1hhh1'
-
-
-import re
-from bs4 import BeautifulSoup
-
-res = re.search(ss, r'\w+')
-# print(res)
-
-
-relink = '<a href="(.*)".*?(.*)</a>'
-
-info = '<<a href="http://www.baidu.com">baidu</a>'
-cinfo = re.findall(relink, info)
+# ss = 'h1hhh1'
+#
+#
+# import re
+# from bs4 import BeautifulSoup
+#
+# res = re.search(ss, r'\w+')
+# # print(res)
+#
+#
+# relink = '<a href="(.*)".*?(.*)</a>'
+#
+# info = '<<a href="http://www.baidu.com">baidu</a>'
+# cinfo = re.findall(relink, info)
 # print(cinfo)
 
 
-ff = ['http://www.allitebooks.com/web-development/asp-net/page/{}/'.format(str(i)) for i in range(2, 13)]
+# ff = ['http://www.allitebooks.com/web-development/asp-net/page/{}/'.format(str(i)) for i in range(2, 13)]
 # 'http://bj.58.com/shoujihao/pn{}/'.format(str(i)) for i in range(start,end)
 # for item in ff:
 #     print(item)
 # print(type(ff))
 
 
-html = """
-<div class="book-detail">
-     <dl>
-     <dt>Author:</dt><dd> <a href="http://www.allitebooks.com/author/lee-naylor/" rel="tag">Lee Naylor</a></dd>
-     <dt>ISBN-10:</dt><dd> 1484221362</dd>
-     <dt>Year:</dt><dd> 2016</dd>
-     <dt>Pages:</dt><dd> 608</dd>
-     <dt>Language:</dt><dd> English</dd>
-     <dt>File size:</dt><dd> 30.6 MB</dd>
-     <dt>File format:</dt><dd> PDF</dd>
-     <dt>Category:</dt><dd> <a href="http://www.allitebooks.com/web-development/asp-net/" rel="category" >ASP.NET</a> <a href="http://www.allitebooks.com/web-development/html-html5-css/" rel="category" >HTML, HTML5 &amp; CSS</a></dd>
-   </dl>   
-  </div>
-  
-"""
-
-
-soup = BeautifulSoup(html, 'lxml')
-
-rules = ('ggg',)
-
-result = [soup.select(kk) for kk in rules]
+# html = """
+# <div class="book-detail">
+#      <dl>
+#      <dt>Author:</dt><dd> <a href="http://www.allitebooks.com/author/lee-naylor/" rel="tag">Lee Naylor</a></dd>
+#      <dt>ISBN-10:</dt><dd> 1484221362</dd>
+#      <dt>Year:</dt><dd> 2016</dd>
+#      <dt>Pages:</dt><dd> 608</dd>
+#      <dt>Language:</dt><dd> English</dd>
+#      <dt>File size:</dt><dd> 30.6 MB</dd>
+#      <dt>File format:</dt><dd> PDF</dd>
+#      <dt>Category:</dt><dd> <a href="http://www.allitebooks.com/web-development/asp-net/" rel="category" >ASP.NET</a> <a href="http://www.allitebooks.com/web-development/html-html5-css/" rel="category" >HTML, HTML5 &amp; CSS</a></dd>
+#    </dl>
+#   </div>
+#
+# """
+#
+#
+# soup = BeautifulSoup(html, 'lxml')
+#
+# rules = ('ggg',)
+#
+# result = [soup.select(kk) for kk in rules]
 #
 # for i in result:
 #     print(i)
@@ -75,7 +75,7 @@ result = [soup.select(kk) for kk in rules]
 # kkk.strip()
 
 
-kk = 'http://www.allitebooks.com/web-development/asp-net/'
+# kk = 'http://www.allitebooks.com/web-development/asp-net/'
 
 # print(kk.join([str(i) for i in range(1, 4)]))
 
@@ -132,36 +132,74 @@ kk = 'http://www.allitebooks.com/web-development/asp-net/'
 # print(gg)
 
 
-MONGO_URL = 'localhost'
-MONGO_DB = 'ITBooks'
-MONGO_TABLE = 'Books'
-
+# MONGO_URL = 'localhost'
+# MONGO_DB = 'ITBooks'
+# MONGO_TABLE = 'Books'
+#
 # import pymongo
 #
 # client = pymongo.MongoClient(MONGO_URL)
 # db = client[MONGO_DB]
 #
+# # 列出数据库名称 ITBooks
+# print(db.name)
 #
-# def save_to_mongo(result):
+# # 列出数据库中所有表的名称 ['Books']
+# print(db.collection_names())
 #
-#     if db.get_collection(MONGO_TABLE).update({}, {'$pushAll': {list(result.keys())[0]: list(result.values())[0]}}, upsert=True):
-#         print('存储到MongoDB成功', result)
+# # 查看连接信息
+# print(db.connection)
+# #
+# #
+# # def save_to_mongo(result):
+# #
+# #     if db.get_collection(MONGO_TABLE).update({}, {'$pushAll': {list(result.keys())[0]: list(result.values())[0]}}, upsert=True):
+# #         print('存储到MongoDB成功', result)
+# #
+# #         # re = db.get_collection(MONGO_TABLE).find({}, {list(result.keys())[0]: 1})
+# #         # print(type(re), re)
+# #
+# #         return True
+# #     return False
 #
-#         # re = db.get_collection(MONGO_TABLE).find({}, {list(result.keys())[0]: 1})
-#         # print(type(re), re)
 #
-#         return True
-#     return False
+# # save_to_mongo({'aps': [{'a': 1}, {'b': 2}]})
+# # save_to_mongo({'aps': [{'c': 3}]})
+# # save_to_mongo({'aps': [{'d': 555}]})
+# # gg = 'aps.net'
+# # print(gg.replace('.', '_'))
+#
+# # 选择要操作的表
+# books = db[MONGO_TABLE]
+#
+# print(books.find({}, {'_id': 1}))
+
+def get_kv(a, b):
+    return (a, b)
+
+ss = map(get_kv, [1,2,3], ['a','b','c'])
 
 
-# save_to_mongo({'aps': [{'a': 1}, {'b': 2}]})
-# save_to_mongo({'aps': [{'c': 3}]})
-# save_to_mongo({'aps': [{'d': 555}]})
-# gg = 'aps.net'
-# print(gg.replace('.', '_'))
+def fmap(a, b):
+    return (a, b)
 
-import re
 
-hh = 'Net'
-print(re.sub(r'^\.', '', hh))
+lik = range(1, 11)
+liv = list("abcdefghij")
+print(map(fmap, lik, liv))
+
+
+
+# test = [1,2,3,4,55]
+# *y, x = test
+# print(y,x)
+
+
+print(23 // 10)
+
+kk = [1]
+print(kk[0])
+
+
+
 
